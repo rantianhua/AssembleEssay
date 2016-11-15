@@ -1,0 +1,2 @@
+# AssembleEssay
+自定义LayoutManager实现一个展示文章的View，支持拖动插入以及相应的动画展示。
