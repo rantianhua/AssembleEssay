@@ -18,7 +18,6 @@ import java.util.List;
  */
 public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
     private static final String TAG = "FlowDragLayoutManager";
-    private static final boolean DEBUG = true;
 
     //记录一行的View
     private List<View> rowViews = new ArrayList<>();
@@ -42,140 +41,108 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
         scrollOffset = 0;
-        startLayout(recycler,state,0);
+        startLayout(recycler, state, 0);
     }
 
     private int startLayout(RecyclerView.Recycler recycler, RecyclerView.State state, int dy) {
         int moreLayoutRow = 0;
-        DebugUtil.debugFormat("%s startLayout origin dy %s",TAG, dy);
+//        DebugUtil.debugFormat("%s startLayout origin dy %s",TAG, dy);
         //先计算，矫正dy
         if (dy == 0) {
             //第一次布局，不需矫正
             detachAndScrapAttachedViews(recycler);
             doFirstLayout(recycler, state);
             return 0;
-        }else if(dy > 0){
+        } else if (dy > 0) {
             //向上拖动
             final View lastVisibleView = getLastVisibleView();
-            final int notShowHeight = getDecoratedBottom(lastVisibleView) + getBottomMargin(lastVisibleView) - (getHeight() - getPaddingBottom());
+            final int notShowHeight = getDecoratedBottom(lastVisibleView) - (getHeight() - getPaddingBottom());
             final boolean isLastItem = getPosition(lastVisibleView) == getItemCount() - 1;
-            final int childHeightSpace = getHeightWithMargin(lastVisibleView);
-            if (notShowHeight > 0) {
-                //没有完全显示
-                if (isLastItem) {
-                    //最后一个数据
-                    dy = Math.min(dy,notShowHeight);
-                }else {
-                    int afterScroll = dy - notShowHeight;
-                    if (afterScroll > 0) {
-                        //此时需要在底部加载新行
-                        moreLayoutRow = afterScroll / childHeightSpace + 1;
-                    }
-                }
-            }else if(notShowHeight == 0) {
-                //正好完全显示，
-                if (isLastItem) {
+            if (isLastItem) {
+                if (notShowHeight > 0) {
+                    dy = Math.min(dy, notShowHeight);
+                } else if (notShowHeight == 0) {
+                    //正好完全显示，
                     dy = 0;
-                }else {
-                    moreLayoutRow = dy / childHeightSpace + 1;
+                } else {
+                    dy = notShowHeight;
                 }
-            }else {
-                dy = dy + notShowHeight;
             }
-        }else {
-            //向下滑动
-            final View firstVisibleView = getChildAt(0);
-            final int childHeightSpace = getHeightWithMargin(firstVisibleView);
-            final int notShowing = getDecoratedTop(firstVisibleView) - getPaddingTop();
-            final boolean isFirstItem = getPosition(firstVisibleView) == 0;
-            final int viewTopMargin = getTopMargin(firstVisibleView);
-            DebugUtil.debugFormat("%s firstVisibleView getDecoratedTop is %s, notShowingHeight is %s, pos is %s, string is %s",TAG, getDecoratedTop(firstVisibleView),
-                    notShowing, getPosition(firstVisibleView), ((TextView)firstVisibleView).getText());
-            if (notShowing >= viewTopMargin) {
-                if (isFirstItem) {
-                    dy = 0;
-                }else {
-                    moreLayoutRow = Math.abs(dy) / childHeightSpace + 1;
-                }
-            } else {
-                if (isFirstItem) {
-                    dy = Math.min(dy, notShowing - viewTopMargin);
-                }else {
-                    int afterScroll = Math.abs(dy) - Math.abs(notShowing - viewTopMargin);
-                    if (afterScroll > 0) {
-                        moreLayoutRow = afterScroll / childHeightSpace + 1;
-                    }
-                }
+        } else {
+            //向上拖动
+            if (scrollOffset + dy < 0) {
+                dy = -scrollOffset;
             }
         }
-        DebugUtil.debugFormat("%s startLayout handled dy %s, moreLayoutRow %s",TAG, dy, moreLayoutRow);
+
+//        DebugUtil.debugFormat("%s startLayout handled dy %s, moreLayoutRow %s",TAG, dy, moreLayoutRow);
 
         //根据dy进行View的回收
-        recycleOutOfIndexView(recycler,state,dy);
+        recycleOutOfIndexView(recycler, state, dy);
 
-        if (moreLayoutRow == 0) return dy;
+        if (dy == 0) return dy;
         //拖动中的布局
         int startPos = 0;
         int endPos = getItemCount() - 1;
         int leftOffset = getPaddingLeft();
         verticalOffset = getPaddingTop();
-        int rowIndex = 0;
         if (dy > 0) {
             final View lastVisibleView = getLastVisibleView();
             startPos = getPosition(lastVisibleView) + 1;
             verticalOffset = getDecoratedBottom(lastVisibleView) + getBottomMargin(lastVisibleView);
-            for (int i = startPos; i <= endPos; i++) {
-                final View child = recycler.getViewForPosition(i);
-                addView(child);
-                measureChildWithMargins(child,0,0);
-                final int childWidthSpace = getWidthWithMargin(child);
-                if (leftOffset + childWidthSpace <= getContentHorizontalSpace()) {
-                    //一行未满
-                    rowViews.add(child);
-                    leftOffset += childWidthSpace;
-                    if (i == endPos) {
-                        DebugUtil.debugFormat("%s startLayout up 一行未满，但数据没有了",TAG);
-                        layoutARow(true);
-                    }
-                }else {
-                    //换行
-                    layoutARow(false);
-                    rowIndex++;
-                    if (rowIndex == moreLayoutRow) {
-                        //布局完毕
+            if (verticalOffset - dy < getHeight() - getPaddingBottom()) {
+                //没有必要绘制了
+                for (int i = startPos; i <= endPos; i++) {
+                    final View child = recycler.getViewForPosition(i);
+                    addView(child);
+                    measureChildWithMargins(child, 0, 0);
+                    final int childWidthSpace = getWidthWithMargin(child);
+                    if (leftOffset + childWidthSpace <= getContentHorizontalSpace()) {
+                        //一行未满
+                        rowViews.add(child);
+                        leftOffset += childWidthSpace;
+                        if (i == endPos) {
+                            layoutARow(true);
+                        }
+                    } else {
+                        //换行
+                        layoutARow(false);
+                        if (verticalOffset - dy > getHeight() - getPaddingBottom()) {
+                            //越界,不用再布局
+                            removeAndRecycleView(child, recycler);
+                            break;
+                        }
                         removeAndRecycleView(child,recycler);
-                        DebugUtil.debugFormat("%s startLayout up rowIndex 达标",TAG);
-                        break;
-                    }
-                    leftOffset = getPaddingLeft();
-                    rowViews.add(child);
-                    leftOffset += childWidthSpace;
-                    if (i == endPos) {
-                        DebugUtil.debugFormat("%s startLayout up 刚慢一行满，新行只有一个数据",TAG);
-                        layoutARow(true);
+                        leftOffset = getPaddingLeft();
+                        i--;
                     }
                 }
             }
-        }else {
+            //最后再纠正一次dy,有可能拖出空白
+            final View lastView = getLastVisibleView();
+            if (getPosition(lastView) == getItemCount() - 1) {
+                int interval = getHeight() - getPaddingBottom() - getDecoratedBottom(lastView);
+                if (interval > 0) {
+                    dy -= interval;
+                }
+            }
+        } else {
             final View firstView = getChildAt(0);
-            final int childWidthSpace = getWidthWithMargin(firstView);
             startPos = getPosition(firstView) - 1;
-            DebugUtil.debugFormat("%s startLayout startPos %s",TAG, startPos);
             for (int i = startPos; i >= 0; i--) {
                 Rect rect = preLayoutedViews.get(i);
-                View child = recycler.getViewForPosition(i);
-                addView(child, 0);
-                measureChildWithMargins(child, 0, 0);
-                DebugUtil.debugFormat("%s layout pos is %s, String is %s",TAG,i,((TextView)child).getText());
-                layoutDecoratedWithMargins(child, rect.left, rect.top - scrollOffset, rect.right, rect.bottom - scrollOffset);
-                if (leftOffset + childWidthSpace <= getContentHorizontalSpace()) {
-                    leftOffset += childWidthSpace;
-                }else {
-                    rowIndex ++;
-                    if (rowIndex == moreLayoutRow) {
-                        break;
-                    }
-                    leftOffset = getPaddingLeft();
+                if (rect.bottom - scrollOffset - dy < getPaddingTop()) {
+                    //越界,不画
+                    break;
+                } else {
+                    View child = recycler.getViewForPosition(i);
+                    addView(child, 0);
+                    measureChildWithMargins(child, 0, 0);
+                    layoutDecoratedWithMargins(child, rect.left, rect.top - scrollOffset, rect.right, rect.bottom - scrollOffset);
+                    DebugUtil.debugFormat("%s startLayout pos is %s, string %s",
+                            TAG,
+                            getPosition(child),
+                            ((TextView) child).getText());
                 }
             }
         }
@@ -190,10 +157,10 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         int endPos = getItemCount() - 1;
         int leftOffset = getPaddingLeft();
         verticalOffset = getPaddingTop();
-        for (int i = startPos;i <= endPos; i++) {
+        for (int i = startPos; i <= endPos; i++) {
             View child = recycler.getViewForPosition(i);
             addView(child);
-            measureChildWithMargins(child,0,0);
+            measureChildWithMargins(child, 0, 0);
             int childWidthSpace = getWidthWithMargin(child);
             if (leftOffset + childWidthSpace <= getContentHorizontalSpace()) {
                 //当前行可以继续排列
@@ -202,7 +169,7 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
                 if (i == endPos) {
                     layoutARow(true);
                 }
-            }else {
+            } else {
                 //先布局上一行的Views
                 layoutARow(false);
                 //换行显示
@@ -211,9 +178,9 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
                 if (verticalOffset > getHeight() - getPaddingBottom()) {
                     //向下越界,不用显示,回收View
 //                        DebugUtil.debugFormat("%s 向下越界, position is %s", TAG, i);
-                    removeAndRecycleView(child,recycler);
+                    removeAndRecycleView(child, recycler);
                     break;
-                }else {
+                } else {
                     rowViews.add(child);
                     leftOffset += childWidthSpace;
                     if (i == endPos) {
@@ -225,47 +192,62 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private View getLastVisibleView() {
-        return getChildAt(getChildCount()-1);
+        return getChildAt(getChildCount() - 1);
     }
 
     /**
      * 拖动过程中回收越界的View
+     * 改方法还有问题
      */
     private void recycleOutOfIndexView(RecyclerView.Recycler recycler, RecyclerView.State state, int dy) {
-        for (int i = 0;i < getChildCount();i++) {
-            View child = getChildAt(i);
-            if (dy > 0) {
-                //向上滑动,回收上越界的View
-                if (getDecoratedBottom(child) + getBottomMargin(child) - dy <= getPaddingTop()) {
-                    removeAndRecycleView(child, recycler);
-                    DebugUtil.debugFormat("%s 回收上越界View string is %s",TAG, ((TextView)child).getText());
-                }
-            }else if (dy < 0){
-                //向下滑动,回收下越界的View
-                if (getDecoratedTop(child) - getTopMargin(child) - dy >= getHeight() - getPaddingBottom()) {
-                    removeAndRecycleView(child,recycler);
-                    DebugUtil.debugFormat("%s 回收下越界View string is %s",TAG,  ((TextView)child).getText());
-                }
-            }
-        }
+//        if (dy > 0) {
+//            //向上滑动,回收上越界的View
+//            for (int i = 0; i < getChildCount(); i++) {
+//                final View child = getChildAt(i);
+//                DebugUtil.debugFormat("%s recycleOutOfIndexView index:%s up getDecorationBottom:%s, scrollOffset:%s, dy:%s",TAG,i,getDecoratedBottom(child),scrollOffset,dy);
+//                if (getDecoratedBottom(child) + getBottomMargin(child) > Math.abs(dy)) {
+//                    //滑动之后不可见,回收掉
+//                    removeAndRecycleViewAt(i, recycler);
+//                    DebugUtil.debugFormat("%s recycleOutOfIndexView view in viewgroup index:%s",TAG,i);
+//                }else {
+//                    break;
+//                }
+//            }
+//        } else if (dy < 0) {
+//            //向下滑动,回收下越界的View
+//            for (int i = getChildCount() - 1;i >= 0; i--) {
+//                final View child = getChildAt(i);
+//                DebugUtil.debugFormat("%s recycleOutOfIndexView index:%s down getDecoratedTop:%s, scrollOffset:%s, dy:%s",TAG,i,getDecoratedTop(child),scrollOffset,dy);
+//                if (getDecoratedTop(child) - dy > getHeight() - getPaddingBottom()) {
+//                    //不可见,回收
+//                    removeAndRecycleViewAt(i, recycler);
+//                    DebugUtil.debugFormat("%s recycleOutOfIndexView view in viewgroup index:%s",TAG,i);
+//                }else {
+//                    break;
+//
+//                }
+//            }
+//        }
     }
 
     /**
      * 布局一行的View
+     *
      * @param isLastRow 是否最后一行
      */
     private void layoutARow(boolean isLastRow) {
         int rowItems = rowViews.size();
         if (rowItems == 0) return;
-//        DebugUtil.debugFormat("%s layoutARow isLastRow is %s, rowItems is %s", TAG, isLastRow, rowItems);
         int viewWidthSpace = 0;
         for (View rowView : rowViews) {
             viewWidthSpace += getWidthWithMargin(rowView);
         }
         int restSpace = getContentHorizontalSpace() - viewWidthSpace;
         //计算每一个Item之间的间隔
-        int horizontalInterval = isLastRow ? 0 : restSpace / (rowItems - 1);
-//        DebugUtil.debugFormat("%s layoutARow horizontalInterval is %s", TAG, horizontalInterval);
+        int horizontalInterval = 0;
+        if (rowItems > 1) {
+            horizontalInterval = isLastRow ? 0 : restSpace / (rowItems - 1);
+        }
         int horizontalOffset = getPaddingLeft();
         int itemHeightSpace = 0;
         for (int j = 0; j < rowItems; j++) {
@@ -277,21 +259,23 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
                         verticalOffset,
                         horizontalOffset + getWidthWithMargin(rowViews.get(j)),
                         verticalOffset + itemHeightSpace);
-                rect.set(horizontalOffset, verticalOffset + scrollOffset, horizontalOffset + getWidthWithMargin(rowViews.get(j)),verticalOffset + itemHeightSpace + scrollOffset);
-            }else {
+                rect.set(horizontalOffset, verticalOffset + scrollOffset, horizontalOffset + getWidthWithMargin(rowViews.get(j)), verticalOffset + itemHeightSpace + scrollOffset);
+            } else {
                 layoutDecoratedWithMargins(rowViews.get(j),
                         horizontalOffset,
                         verticalOffset,
                         horizontalOffset + getWidthWithMargin(rowViews.get(j)) + horizontalInterval,
                         verticalOffset + itemHeightSpace);
-                rect.set(horizontalOffset, verticalOffset + scrollOffset, horizontalOffset + getWidthWithMargin(rowViews.get(j)) + horizontalInterval,verticalOffset + itemHeightSpace + scrollOffset);
+                rect.set(horizontalOffset, verticalOffset + scrollOffset, horizontalOffset + getWidthWithMargin(rowViews.get(j)) + horizontalInterval, verticalOffset + itemHeightSpace + scrollOffset);
                 horizontalOffset += getWidthWithMargin(rowViews.get(j)) + horizontalInterval;
             }
-            DebugUtil.debugFormat("%s layout pos is %s, String is %s",TAG,getPosition(rowViews.get(j)),((TextView)rowViews.get(j)).getText());
-            preLayoutedViews.put(getPosition(rowViews.get(j)),rect);
+            DebugUtil.debugFormat("%s startLayout pos is %s, string %s",
+                    TAG,
+                    getPosition(rowViews.get(j)),
+                    ((TextView) rowViews.get(j)).getText());
+            preLayoutedViews.put(getPosition(rowViews.get(j)), rect);
         }
         verticalOffset += itemHeightSpace;
-        DebugUtil.debugFormat("%s verticalOffset is %s, item height is %s", TAG, verticalOffset, itemHeightSpace);
         rowViews.clear();
     }
 
@@ -337,17 +321,10 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (dy == 0) return 0;
         if (getChildCount() == 0) return 0;
-        int realOffset = dy;
-        if (scrollOffset + realOffset < 0) {
-            realOffset = -scrollOffset;
-        }
-        if (realOffset == 0) {
-            return 0;
-        }
-        DebugUtil.debugFormat("%s scrollVerticallyBy realScroll is %s",TAG, realOffset);
-        realOffset = startLayout(recycler,state,realOffset);
+        int realOffset = startLayout(recycler, state, dy);
         scrollOffset += realOffset;
         offsetChildrenVertical(-realOffset);
         return realOffset;
     }
+
 }

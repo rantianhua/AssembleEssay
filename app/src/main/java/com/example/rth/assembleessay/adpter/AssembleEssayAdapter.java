@@ -64,12 +64,6 @@ public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdap
         notifyItemMoved(fromPosition,toPosition);
     }
 
-    @Override
-    public void onItemDismiss(int position) {
-        datas.remove(position);
-        notifyItemRemoved(position);
-    }
-
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvWord;
