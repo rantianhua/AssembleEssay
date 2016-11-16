@@ -3,11 +3,13 @@ package com.example.rth.assembleessay.activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.example.rth.assembleessay.R;
 import com.example.rth.assembleessay.adpter.AssembleEssayAdapter;
 import com.example.rth.assembleessay.contract.MainContract;
 import com.example.rth.assembleessay.presenter.MainPresenter;
+import com.example.rth.assembleessay.widget.DragItemTouchCallBack;
 import com.example.rth.assembleessay.widget.FlowDragLayoutManager;
 
 import java.util.List;
@@ -30,6 +32,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new FlowDragLayoutManager());
         adapter = new AssembleEssayAdapter(this);
+        ItemTouchHelper.Callback callback = new DragItemTouchCallBack(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(recyclerView);
         recyclerView.setAdapter(adapter);
     }
 

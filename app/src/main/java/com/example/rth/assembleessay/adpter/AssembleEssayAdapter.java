@@ -9,14 +9,16 @@ import android.widget.TextView;
 
 import com.example.rth.assembleessay.R;
 import com.example.rth.assembleessay.util.DebugUtil;
+import com.example.rth.assembleessay.widget.ItemTouchHelperAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by rth on 16/11/15.
  */
-public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdapter.ViewHolder> {
+public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
     private static final String TAG = "AssembleEssayAdapter";
 
@@ -56,17 +58,32 @@ public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdap
         return datas.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        Collections.swap(datas,fromPosition,toPosition);
+        notifyItemMoved(fromPosition,toPosition);
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        datas.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvWord;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             this.tvWord = (TextView) itemView;
         }
 
-        public TextView getTvWord() {
+        TextView getTvWord() {
             return tvWord;
         }
     }
+
+
+
 }

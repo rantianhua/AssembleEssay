@@ -92,7 +92,7 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
                     notShowing, getPosition(firstVisibleView), ((TextView)firstVisibleView).getText());
             if (notShowing >= viewTopMargin) {
                 if (isFirstItem) {
-                    dy = viewTopMargin - notShowing;
+                    dy = 0;
                 }else {
                     moreLayoutRow = Math.abs(dy) / childHeightSpace + 1;
                 }
@@ -336,7 +336,11 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (dy == 0) return 0;
         if (getChildCount() == 0) return 0;
-        int realOffset = startLayout(recycler,state,dy);
+        int realOffset = dy;
+        if (scrollOffset + realOffset < 0) {
+            realOffset = -scrollOffset;
+        }
+        realOffset = startLayout(recycler,state,realOffset);
         scrollOffset += realOffset;
         offsetChildrenVertical(-realOffset);
         return realOffset;
