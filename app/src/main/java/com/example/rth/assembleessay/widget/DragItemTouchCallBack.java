@@ -14,16 +14,17 @@ public class DragItemTouchCallBack extends ItemTouchHelper.Callback {
     public DragItemTouchCallBack(ItemTouchHelperAdapter touchHelperAdapter) {
         this.touchHelperAdapter = touchHelperAdapter;
     }
+
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN
                 | ItemTouchHelper.START | ItemTouchHelper.END;
-        return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG,dragFlags);
+        return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, dragFlags);
     }
 
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-        touchHelperAdapter.onItemMove(viewHolder.getAdapterPosition(),target.getAdapterPosition());
+        touchHelperAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
         return true;
     }
 
@@ -36,4 +37,5 @@ public class DragItemTouchCallBack extends ItemTouchHelper.Callback {
     public boolean isLongPressDragEnabled() {
         return true;
     }
+
 }

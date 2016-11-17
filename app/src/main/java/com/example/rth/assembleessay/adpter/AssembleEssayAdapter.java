@@ -51,6 +51,7 @@ public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdap
     public void onBindViewHolder(ViewHolder holder, int position) {
         final String word = datas.get(position);
         holder.getTvWord().setText(word);
+        DebugUtil.debugFormat("%s onBindViewHolder: %s, pos:%s",TAG,word,position);
     }
 
     @Override
@@ -62,6 +63,10 @@ public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdap
     public void onItemMove(int fromPosition, int toPosition) {
         Collections.swap(datas,fromPosition,toPosition);
         notifyItemMoved(fromPosition,toPosition);
+    }
+
+    public List<String> getDatas() {
+        return datas;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -77,7 +82,5 @@ public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdap
             return tvWord;
         }
     }
-
-
 
 }

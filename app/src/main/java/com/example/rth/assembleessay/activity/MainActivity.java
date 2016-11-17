@@ -3,7 +3,10 @@ package com.example.rth.assembleessay.activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.View;
+import android.widget.TextView;
 
 import com.example.rth.assembleessay.R;
 import com.example.rth.assembleessay.adpter.AssembleEssayAdapter;
@@ -12,6 +15,7 @@ import com.example.rth.assembleessay.presenter.MainPresenter;
 import com.example.rth.assembleessay.widget.DragItemTouchCallBack;
 import com.example.rth.assembleessay.widget.FlowDragLayoutManager;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainContract.IMainView {
@@ -36,6 +40,14 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
         recyclerView.setAdapter(adapter);
+        (findViewById(R.id.tv)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Collections.swap(adapter.getDatas(),0,12);
+                adapter.notifyItemMoved(0,12);
+//                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void init() {
