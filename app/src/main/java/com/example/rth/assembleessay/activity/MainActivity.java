@@ -12,6 +12,7 @@ import com.example.rth.assembleessay.R;
 import com.example.rth.assembleessay.adpter.AssembleEssayAdapter;
 import com.example.rth.assembleessay.contract.MainContract;
 import com.example.rth.assembleessay.presenter.MainPresenter;
+import com.example.rth.assembleessay.util.DebugUtil;
 import com.example.rth.assembleessay.widget.DragItemTouchCallBack;
 import com.example.rth.assembleessay.widget.FlowDragLayoutManager;
 
@@ -40,14 +41,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
         recyclerView.setAdapter(adapter);
-        (findViewById(R.id.tv)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Collections.swap(adapter.getDatas(),0,12);
-                adapter.notifyItemMoved(0,12);
-//                adapter.notifyDataSetChanged();
-            }
-        });
     }
 
     private void init() {

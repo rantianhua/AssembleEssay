@@ -61,7 +61,8 @@ public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdap
 
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
-        Collections.swap(datas,fromPosition,toPosition);
+        final String animStartString = datas.remove(fromPosition);
+        datas.add(toPosition,animStartString);
         notifyItemMoved(fromPosition,toPosition);
     }
 
