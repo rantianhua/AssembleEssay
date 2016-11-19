@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
 
     private void afterView() {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new FlowDragLayoutManager());
+        recyclerView.setLayoutManager(new FlowDragableLayoutManager());
         adapter = new AssembleEssayAdapter(this);
         ItemTouchHelper.Callback callback = new DragItemTouchCallBack(adapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);

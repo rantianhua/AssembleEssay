@@ -20,4 +20,10 @@ public interface ILayoutHelper {
      * 逆序布局View
      */
     void layoutReverse(RecyclerView.Recycler recycler, RecyclerView.State state, FlowDragableLayoutManager layoutManager);
+
+    /**
+     * 回收不可见的View
+     */
+    void recycleUnvisibleViews(RecyclerView.Recycler recycler, RecyclerView.State state, FlowDragableLayoutManager flowDragableLayoutManager);
+
 }
