@@ -15,6 +15,7 @@ import com.example.rth.assembleessay.presenter.MainPresenter;
 import com.example.rth.assembleessay.util.DebugUtil;
 import com.example.rth.assembleessay.widget.DragItemTouchCallBack;
 import com.example.rth.assembleessay.widget.FlowDragLayoutManager;
+import com.example.rth.assembleessay.widget.FlowDragableLayoutManager;
 
 import java.util.Collections;
 import java.util.List;
