@@ -1,5 +1,6 @@
 package com.develop.rth.gragwithflowlayout;
 
+import android.support.annotation.IntDef;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +18,14 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
     private List<View> rowViews;
 
     public FlowDragLayoutManager() {
+        this(FlowDragLayoutConstant.TWO_SIDE);
+    }
+
+    public FlowDragLayoutManager(@FlowDragLayoutConstant.AlignMode int layoutAlignMode) {
         layoutInfo = new LayoutInfo();
         layoutHelper = new LayoutHelperImpl();
         rowViews = new ArrayList<>();
+        layoutInfo.alignMode = layoutAlignMode;
     }
 
     @Override
@@ -259,6 +265,8 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         //表示布局顺序
         int layoutFrom;
         boolean haveMoveAction = false;
+        //对齐方式
+        int alignMode;
     }
 
     public interface LayoutFrom {

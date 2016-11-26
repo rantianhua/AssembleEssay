@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AssembleEssay</string>
+    <string name="align_center">向中对齐</string>
+    <string name="align_right">向右对齐</string>
+    <string name="align_left">向左对齐</string>
+    <string name="align_two_side">两边对齐</string>
 </resources>
