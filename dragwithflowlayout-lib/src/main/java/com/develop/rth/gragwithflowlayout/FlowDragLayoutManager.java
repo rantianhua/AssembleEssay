@@ -131,7 +131,8 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
     private void checkoutBottomOutofRange(RecyclerView.State state) {
         final View view = findCloestVisibleView(false);
         if (getPosition(view) == state.getItemCount() - 1) {
-            int interval = getHeight() - getPaddingBottom() - getViewBottomWithMargin(view);
+            int interval = getHeight() - getPaddingBottom() - (getViewBottomWithMargin(view) - layoutInfo.pendingScrollDistance);
+            DebugUtil.debugFormat("底部 interval:%s",interval);
             if (interval > 0) {
                 DebugUtil.debugFormat("底部超出了可滑动范围");
             }

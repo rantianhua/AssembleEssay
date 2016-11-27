@@ -9,7 +9,7 @@ public class DebugUtil {
 
     private static final String LOG_TAG = "AssembleEssay";
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
 
     public static void debug(String message) {
         if (DEBUG) {
