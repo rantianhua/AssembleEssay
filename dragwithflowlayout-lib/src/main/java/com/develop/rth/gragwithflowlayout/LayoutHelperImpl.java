@@ -207,6 +207,11 @@ public class LayoutHelperImpl implements ILayoutHelper {
     public void recycleUnvisibleViews(RecyclerView.Recycler recycler, RecyclerView.State state, FlowDragLayoutManager flowDragLayoutManager) {
         if (flowDragLayoutManager.getChildCount() == 0) return;
         final FlowDragLayoutManager.LayoutInfo layoutInfo = flowDragLayoutManager.getLayoutInfo();
+        if (layoutInfo.pendingScrollDistance < 0) {
+            DebugUtil.debugFormat("FlowDragLayoutManager no need to recycle dy:%s", layoutInfo.pendingScrollDistance);
+            return;
+        }
+        DebugUtil.debugFormat("FlowDragLayoutManager start to recycle:%s", layoutInfo.pendingScrollDistance);
         int top = Integer.MAX_VALUE;
         if (layoutInfo.layoutFrom == FlowDragLayoutManager.LayoutFrom.DOWN_TO_UP) {
             //回收底部不可见的View
@@ -220,7 +225,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
                     break;
                 }
             }
-        }else {
+        }else if (layoutInfo.layoutFrom == FlowDragLayoutManager.LayoutFrom.UP_TO_DOWN){
             //回收顶部不可见的View
             for (int i = 0; i < flowDragLayoutManager.getChildCount(); i++) {
                 final View view = flowDragLayoutManager.getChildAt(i);

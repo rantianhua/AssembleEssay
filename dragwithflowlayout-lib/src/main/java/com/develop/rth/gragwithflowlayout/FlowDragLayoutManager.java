@@ -1,6 +1,7 @@
 package com.develop.rth.gragwithflowlayout;
 
 import android.support.annotation.IntDef;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,7 +86,6 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
             if (layoutInfo.layoutAnchor - layoutInfo.pendingScrollDistance >= getHeight() - getPaddingBottom()) {
                 //不需要布局了
 //                DebugUtil.debugFormat("FlowDragLayoutManager no need to layout from up to down");
-                checkoutBottomOutofRange(state);
                 return;
             }
         }
@@ -132,9 +132,9 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         final View view = findCloestVisibleView(false);
         if (getPosition(view) == state.getItemCount() - 1) {
             int interval = getHeight() - getPaddingBottom() - (getViewBottomWithMargin(view) - layoutInfo.pendingScrollDistance);
-            DebugUtil.debugFormat("底部 interval:%s",interval);
             if (interval > 0) {
-                DebugUtil.debugFormat("底部超出了可滑动范围");
+                layoutInfo.pendingScrollDistance = getViewBottomWithMargin(view) - (getHeight() - getPaddingBottom());
+                DebugUtil.debugFormat("FlowDragLayoutManager correct dy is %s", layoutInfo.pendingScrollDistance);
             }
         }
     }
@@ -184,8 +184,6 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
                     dy = Math.min(-bottomInterval, dy);
                 }else {
                     //底部还有空白
-//                    DebugUtil.debugFormat("FlowDragLayoutManager scroll to end and have white space");
-//                    dy = -bottomInterval;
                     return 0;
                 }
             }
@@ -197,10 +195,19 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        layoutInfo.pendingScrollDistance = Math.abs(dy);
-        layoutInfo.layoutFrom = dy > 0 ? LayoutFrom.UP_TO_DOWN : LayoutFrom.DOWN_TO_UP;
+        //准备回收,
+        //先按照安全滑动距离（比如向上滑动时，正好让最后一个不完全显示的View显示的完全的距离）去处理回收
+        if (dy > 0) {
+            layoutInfo.pendingScrollDistance = getViewBottomWithMargin(findCloestVisibleView(false)) - (getHeight() - getPaddingBottom());
+            layoutInfo.layoutFrom = LayoutFrom.UP_TO_DOWN;
+        }else {
+            layoutInfo.pendingScrollDistance = getPaddingTop() - getViewTopWithMargin(findCloestVisibleView(true));
+            layoutInfo.layoutFrom = LayoutFrom.DOWN_TO_UP;
+        }
         layoutHelper.recycleUnvisibleViews(recycler, state, this);
 
+        //准备布局
+        layoutInfo.pendingScrollDistance = Math.abs(dy);
         if (dy > 0) {
             final View last = findCloestVisibleView(false);
             layoutInfo.layoutAnchor = getViewBottomWithMargin(last);
@@ -211,6 +218,7 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
             layoutInfo.startLayoutPos = getPosition(first) - 1;
         }
         startLayout(recycler,state);
+        dy = dy > 0 ? layoutInfo.pendingScrollDistance : -layoutInfo.pendingScrollDistance;
         offsetChildrenVertical(-dy);
         layoutInfo.scrollOffset += dy;
 //        DebugUtil.debugFormat("FlowDragLayoutManager dy:%s scrollOffset:%s",dy,layoutInfo.scrollOffset);
