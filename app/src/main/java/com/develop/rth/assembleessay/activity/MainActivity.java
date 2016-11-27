@@ -4,12 +4,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.develop.rth.assembleessay.R;
 import com.develop.rth.assembleessay.adpter.AssembleEssayAdapter;
 import com.develop.rth.assembleessay.contract.MainContract;
 import com.develop.rth.assembleessay.presenter.MainPresenter;
 import com.develop.rth.assembleessay.adpter.DragItemTouchCallBack;
+import com.develop.rth.gragwithflowlayout.FlowDragLayoutConstant;
 import com.develop.rth.gragwithflowlayout.FlowDragLayoutManager;
 
 import java.util.List;
@@ -55,5 +58,30 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
         if (datas.size() == 0) return;
         adapter.setDatas(datas);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_align_left:
+                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.LEFT));
+                break;
+            case R.id.menu_align_center:
+                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.CENTER));
+                break;
+            case R.id.menu_align_right:
+                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.RIGHT));
+                break;
+            case R.id.menu_align_two_side:
+                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.TWO_SIDE));
+                break;
+        }
+        return true;
     }
 }

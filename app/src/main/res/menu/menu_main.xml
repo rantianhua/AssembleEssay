@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/align_two_side"
+        android:id="@+id/menu_align_two_side"
+        app:showAsAction="never" />
+    <item android:title="@string/align_left"
+        android:id="@+id/menu_align_left"
+        app:showAsAction="never" />
+    <item android:title="@string/align_right"
+        android:id="@+id/menu_align_right"
+        app:showAsAction="never" />
+    <item android:title="@string/align_center"
+        android:id="@+id/menu_align_center"
+        app:showAsAction="never" />
+</menu>
