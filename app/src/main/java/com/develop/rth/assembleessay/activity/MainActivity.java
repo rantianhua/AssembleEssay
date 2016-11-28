@@ -71,12 +71,18 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
         switch (item.getItemId()) {
             case R.id.menu_align_left:
                 recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.LEFT));
+//                adapter.getDatas().remove(0);
+//                adapter.notifyDataSetChanged();
                 break;
             case R.id.menu_align_center:
                 recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.CENTER));
+//                adapter.getDatas().remove(0);
+//                adapter.notifyItemRemoved(0);
                 break;
             case R.id.menu_align_right:
                 recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.RIGHT));
+//                adapter.getDatas().add(0, "New add");
+//                adapter.notifyItemInserted(0);
                 break;
             case R.id.menu_align_two_side:
                 recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.TWO_SIDE));

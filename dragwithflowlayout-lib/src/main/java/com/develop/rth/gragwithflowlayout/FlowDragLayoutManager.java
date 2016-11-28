@@ -1,7 +1,5 @@
 package com.develop.rth.gragwithflowlayout;
 
-import android.support.annotation.IntDef;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,8 +44,8 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
             removeAndRecycleAllViews(recycler);
             return;
         }
-        if (layoutInfo.haveMoveAction) {
-            layoutInfo.haveMoveAction = false;
+        if (layoutInfo.haveReseted) {
+            layoutInfo.haveReseted = false;
         } else {
             resetLayoutInfo();
         }
@@ -154,12 +152,6 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public void onItemsMoved(RecyclerView recyclerView, int from, int to, int itemCount) {
-        layoutInfo.haveMoveAction = true;
-        resetLayoutInfo();
-    }
-
-    @Override
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         DebugUtil.debugFormat("FlowDragLayoutManager onLayoutComplete");
@@ -196,7 +188,7 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         }
 
         //准备回收,
-        //先按照安全滑动距离（比如向上滑动时，正好让最后一个不完全显示的View显示的完全的距离）去处理回收
+        //按照安全滑动距离（比如向上滑动时，正好让最后一个不完全显示的View显示的完全的距离）去处理回收
         if (dy > 0) {
             layoutInfo.pendingScrollDistance = getViewBottomWithMargin(findCloestVisibleView(false)) - (getHeight() - getPaddingBottom());
             layoutInfo.layoutFrom = LayoutFrom.UP_TO_DOWN;
@@ -225,42 +217,42 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         return dy;
     }
 
-    public int getViewTopWithMargin(final View view) {
+    protected int getViewTopWithMargin(final View view) {
         final RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
         return getDecoratedTop(view) - lp.topMargin;
     }
 
-    public View findCloestVisibleView(boolean isFirst) {
+    protected View findCloestVisibleView(boolean isFirst) {
         return getChildAt(isFirst ? 0 : getChildCount() - 1);
     }
 
-    public int getViewBottomWithMargin(View view) {
+    protected int getViewBottomWithMargin(View view) {
         final RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
         return getDecoratedBottom(view) + lp.bottomMargin;
     }
 
-    public int getContentHorizontalSpace() {
+    protected int getContentHorizontalSpace() {
         return getWidth() - getPaddingLeft() - getPaddingRight();
     }
 
-    public int getWidthWithMargins(View view) {
+    protected int getWidthWithMargins(View view) {
         final RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
         return getDecoratedMeasuredWidth(view) + lp.leftMargin + lp.rightMargin;
     }
 
-    public int getHeightWithMargins(View view) {
+    protected int getHeightWithMargins(View view) {
         final RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
         return getDecoratedMeasuredHeight(view) + lp.topMargin + lp.bottomMargin;
     }
 
-    public LayoutInfo getLayoutInfo() {
+    protected LayoutInfo getLayoutInfo() {
         return layoutInfo;
     }
 
     /**
      * 记录和布局相关的全局信息
      */
-    public final static class LayoutInfo {
+    protected final static class LayoutInfo {
         //滚动的偏移量
         int scrollOffset;
         //开始布局的锚点
@@ -273,15 +265,58 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         int firstVisibleViewTop;
         //表示布局顺序
         int layoutFrom;
-        boolean haveMoveAction = false;
+        boolean haveReseted = false;
         //对齐方式
         int alignMode;
     }
 
-    public interface LayoutFrom {
+    protected interface LayoutFrom {
         //从上往下布局
         int UP_TO_DOWN = 1;
         //相反
         int DOWN_TO_UP = -1;
+    }
+
+
+    @Override
+    public void onItemsMoved(RecyclerView recyclerView, int from, int to, int itemCount) {
+        DebugUtil.debugFormat("FlowDragLayoutManager onItemsMoved");
+        layoutInfo.haveReseted = true;
+        resetLayoutInfo();
+    }
+
+    @Override
+    public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
+        DebugUtil.debugFormat("FlowDragLayoutManager onItemsRemoved");
+        layoutInfo.haveReseted = true;
+        resetLayoutInfo();
+    }
+
+    @Override
+    public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
+        DebugUtil.debugFormat("FlowDragLayoutManager onItemsAdded");
+        layoutInfo.haveReseted = true;
+        resetLayoutInfo();
+    }
+
+    @Override
+    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount) {
+        DebugUtil.debugFormat("FlowDragLayoutManager onItemsUpdated");
+        layoutInfo.haveReseted = true;
+        resetLayoutInfo();
+    }
+
+    @Override
+    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount, Object payload) {
+        DebugUtil.debugFormat("FlowDragLayoutManager onItemsUpdated with payload");
+        layoutInfo.haveReseted = true;
+        resetLayoutInfo();
+    }
+
+    @Override
+    public void onItemsChanged(RecyclerView recyclerView) {
+        DebugUtil.debugFormat("FlowDragLayoutManager onItemsChanged");
+        layoutInfo.haveReseted = true;
+        resetLayoutInfo();
     }
 }
