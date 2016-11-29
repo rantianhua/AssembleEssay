@@ -5,7 +5,6 @@ import android.support.v4.util.Pools;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,21 +28,24 @@ public class LayoutHelperImpl implements ILayoutHelper {
         final int alignMode = layoutManager.getLayoutInfo().alignMode;
         switch (alignMode) {
             case FlowDragLayoutConstant.LEFT:
-                alignLeftLayout(views, layoutManager);
+                alignLeftLayout(views, layoutManager, recycler);
                 break;
             case FlowDragLayoutConstant.TWO_SIDE:
-                alignTwoSideLayout(views, layoutManager, isLastRow);
+                alignTwoSideLayout(views, layoutManager, isLastRow, recycler);
                 break;
             case FlowDragLayoutConstant.RIGHT:
-                alignRightLayout(views, layoutManager);
+                alignRightLayout(views, layoutManager, recycler);
                 break;
             case FlowDragLayoutConstant.CENTER:
-                alignCenterLayout(views, layoutManager);
+                alignCenterLayout(views, layoutManager, recycler);
                 break;
         }
 
-        final View last = views.get(views.size() - 1);
-        layoutManager.getLayoutInfo().layoutAnchor = layoutManager.getViewBottomWithMargin(last);
+        if (layoutManager.getLayoutInfo().layoutByScroll
+                || (!layoutManager.getLayoutInfo().layoutByScroll && !layoutManager.getLayoutInfo().justCalculate)) {
+            final View last = views.get(views.size() - 1);
+            layoutManager.getLayoutInfo().layoutAnchor = layoutManager.getViewBottomWithMargin(last);
+        }
 
         if (views.size() > maxLineNumbser) {
             maxLineNumbser = views.size();
@@ -55,7 +57,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
     /**
      * 布局时向中对齐
      */
-    private void alignCenterLayout(List<View> views, FlowDragLayoutManager layoutManager) {
+    private void alignCenterLayout(List<View> views, FlowDragLayoutManager layoutManager, RecyclerView.Recycler recycler) {
         //计算向右的偏移量
         int totalWidth = 0;
         for (View view : views) {
@@ -77,7 +79,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
             int r = l + widthSpace;
             int b = t + heightSpace;
 
-            layoutManager.layoutDecoratedWithMargins(view, l, t, r, b);
+            realLayoutItem(l, t, r, b, view, layoutManager, recycler, i == 0);
 
             xOffset = r;
         }
@@ -86,7 +88,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
     /**
      * 布局时向右对齐
      */
-    private void alignRightLayout(List<View> views, FlowDragLayoutManager layoutManager) {
+    private void alignRightLayout(List<View> views, FlowDragLayoutManager layoutManager, RecyclerView.Recycler recycler) {
         int xOffset = layoutManager.getWidth() - layoutManager.getPaddingRight();
         int heightSpace = 0;
         for (int i = views.size() - 1; i >= 0; i--) {
@@ -99,7 +101,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
             int r = xOffset;
             int b = t + heightSpace;
 
-            layoutManager.layoutDecoratedWithMargins(view, l, t, r, b);
+            realLayoutItem(l, t, r, b, view, layoutManager, recycler, i == 0);
 
             xOffset = l;
         }
@@ -108,7 +110,8 @@ public class LayoutHelperImpl implements ILayoutHelper {
     /**
      * 布局时两边对齐
      */
-    private void alignTwoSideLayout(List<View> views, FlowDragLayoutManager layoutManager, boolean isLastRow) {
+    private void alignTwoSideLayout(List<View> views, FlowDragLayoutManager layoutManager, boolean isLastRow, RecyclerView.Recycler recycler) {
+        final FlowDragLayoutManager.LayoutInfo layoutInfo = layoutManager.getLayoutInfo();
         //计算行内间距
         int interval = 0;
         if (views.size() > 1 && !isLastRow) {
@@ -133,7 +136,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
             int r = l + widthSpace;
             int b = t + heightSpace;
 
-            layoutManager.layoutDecoratedWithMargins(view, l, t, r, b);
+            realLayoutItem(l, t, r, b, view, layoutManager, recycler, i == 0);
 
             xOffset = r + interval;
         }
@@ -142,7 +145,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
     /**
      * 布局时向左对齐
      */
-    private void alignLeftLayout(List<View> views, FlowDragLayoutManager layoutManager) {
+    private void alignLeftLayout(List<View> views, FlowDragLayoutManager layoutManager, RecyclerView.Recycler recycler) {
         int xOffset = layoutManager.getPaddingLeft();
         int heightSpace = 0;
         for (int i = 0; i < views.size(); i++) {
@@ -155,7 +158,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
             int r = l + widthSpace;
             int b = t + heightSpace;
 
-            layoutManager.layoutDecoratedWithMargins(view, l, t, r, b);
+            realLayoutItem(l, t, r, b, view, layoutManager, recycler, i == 0);
 
             xOffset = r;
         }
@@ -164,15 +167,15 @@ public class LayoutHelperImpl implements ILayoutHelper {
     @Override
     public void layoutReverse(RecyclerView.Recycler recycler, RecyclerView.State state, FlowDragLayoutManager layoutManager) {
         final FlowDragLayoutManager.LayoutInfo layoutInfo = layoutManager.getLayoutInfo();
-        DebugUtil.debugFormat("FlowDragLayoutManager layout reverse start:%s, anchor:%s",layoutInfo.startLayoutPos,layoutInfo.layoutAnchor);
+//        DebugUtil.debugFormat("FlowDragLayoutManager layout reverse start:%s, anchor:%s",layoutInfo.startLayoutPos,layoutInfo.layoutAnchor);
         for (int i = layoutInfo.startLayoutPos; i >= 0;i--) {
             LineItemPosRecord lineItemPosRecord = preLayoutedViews.get(i);
             Rect rect = lineItemPosRecord.rect;
             int heightSpace = rect.bottom - rect.top;
 
-            DebugUtil.debugFormat("FlowDragLayoutManager layout anchor:%s distance:%s",layoutInfo.layoutAnchor, layoutInfo.pendingScrollDistance);
+//            DebugUtil.debugFormat("FlowDragLayoutManager layout anchor:%s distance:%s",layoutInfo.layoutAnchor, layoutInfo.pendingScrollDistance);
             if (layoutInfo.layoutAnchor + layoutInfo.pendingScrollDistance <= layoutManager.getPaddingTop()) {
-                DebugUtil.debugFormat("FlowDragLayoutManager layout reverse over:%s",i);
+//                DebugUtil.debugFormat("FlowDragLayoutManager layout reverse over:%s",i);
                 break;
             }
 
@@ -186,16 +189,36 @@ public class LayoutHelperImpl implements ILayoutHelper {
                 layoutInfo.layoutAnchor -= heightSpace;
             }
 
-            releaseItemLayoutInfo(i, lineItemPosRecord);
+            releaseItemLayoutInfo(lineItemPosRecord);
+            preLayoutedViews.remove(i);
         }
-        DebugUtil.debugFormat("FlowDragLayoutManager finish reverse preLayoutedViews:%s",preLayoutedViews.size());
+//        DebugUtil.debugFormat("FlowDragLayoutManager finish reverse preLayoutedViews:%s",preLayoutedViews.size());
+    }
+
+    private void realLayoutItem(int l, int t, int r, int b, View view, FlowDragLayoutManager layoutManager, RecyclerView.Recycler recycler, boolean isFirstItemInARow) {
+        final FlowDragLayoutManager.LayoutInfo layoutInfo = layoutManager.getLayoutInfo();
+        if (layoutInfo.layoutByScroll) {
+            DebugUtil.debugFormat("FlowDragLayoutManager realLayoutItem layoutOutByScroll");
+            layoutManager.layoutDecoratedWithMargins(view, l, t, r, b);
+        }else {
+            if (layoutInfo.justCalculate) {
+                LineItemPosRecord lineItemPosRecord = generateALineItem(layoutManager);
+                lineItemPosRecord.setFirstItemInLine(isFirstItemInARow);
+                lineItemPosRecord.rect.set(l, t, r, b);
+                preLayoutedViews.put(layoutManager.getPosition(view), lineItemPosRecord);
+                layoutManager.removeAndRecycleView(view, recycler);
+                DebugUtil.debugFormat("FlowDragLayoutManager realLayoutItem put %s into preLayoutedViews, then preLayoutedViews size is %s", layoutManager.getPosition(view), preLayoutedViews.size());
+            }else {
+                layoutManager.layoutDecoratedWithMargins(view, l, t, r, b);
+                DebugUtil.debugFormat("FlowDragLayoutManager realLayoutItem layout %s without scroll", layoutManager.getPosition(view));
+            }
+        }
     }
 
     /**
      * 回收Rect对象再利用
      */
-    private void releaseItemLayoutInfo(int pos, LineItemPosRecord rect) {
-        preLayoutedViews.remove(pos);
+    private void releaseItemLayoutInfo(LineItemPosRecord rect) {
         try {
             rectSimplePool.release(rect);
         }catch (Exception e) {
@@ -208,10 +231,8 @@ public class LayoutHelperImpl implements ILayoutHelper {
         if (flowDragLayoutManager.getChildCount() == 0) return;
         final FlowDragLayoutManager.LayoutInfo layoutInfo = flowDragLayoutManager.getLayoutInfo();
         if (layoutInfo.pendingScrollDistance < 0) {
-            DebugUtil.debugFormat("FlowDragLayoutManager no need to recycle dy:%s", layoutInfo.pendingScrollDistance);
             return;
         }
-        DebugUtil.debugFormat("FlowDragLayoutManager start to recycle:%s", layoutInfo.pendingScrollDistance);
         int top = Integer.MAX_VALUE;
         if (layoutInfo.layoutFrom == FlowDragLayoutManager.LayoutFrom.DOWN_TO_UP) {
             //回收底部不可见的View
@@ -242,7 +263,7 @@ public class LayoutHelperImpl implements ILayoutHelper {
 
                     pendingRecycleView.add(view);
                 }else {
-                    DebugUtil.debugFormat("FlowDragLayoutManager finish recycle preLayoutedViews:%s",preLayoutedViews.size());
+//                    DebugUtil.debugFormat("FlowDragLayoutManager finish recycle preLayoutedViews:%s",preLayoutedViews.size());
                     break;
                 }
             }
@@ -253,30 +274,48 @@ public class LayoutHelperImpl implements ILayoutHelper {
         }
 
         for (View view : pendingRecycleView) {
-            DebugUtil.debugFormat("FlowDragLayoutManager recycle %s", flowDragLayoutManager.getPosition(view));
+//            DebugUtil.debugFormat("FlowDragLayoutManager recycle %s", flowDragLayoutManager.getPosition(view));
             flowDragLayoutManager.removeAndRecycleView(view, recycler);
         }
 
         pendingRecycleView.clear();
     }
 
+    @Override
+    public void willCalculateUnVisibleViews() {
+        //需要重新计算之前没有显示的View的布局信息
+//        DebugUtil.debugFormat("FlowDragLayoutManager layoutARow, not scroll preLayoutedViews.size:%s", preLayoutedViews.size());
+        for (int i = 0;i < preLayoutedViews.size(); i++) {
+            LineItemPosRecord record = preLayoutedViews.get(i, null);
+            if (record != null) {
+                releaseItemLayoutInfo(record);
+            }
+        }
+        preLayoutedViews.clear();
+    }
+
     /**
      * 当向上滑动时，记录从顶部回收的View的布局信息，因为往回滑的时候不能重新计算
      */
     private void saveLayoutInfo(View view, FlowDragLayoutManager layoutManager, boolean isFirstItemInLine) {
+        LineItemPosRecord out = generateALineItem(layoutManager);
+        out.setFirstItemInLine(isFirstItemInLine);
+        layoutManager.getDecoratedBoundsWithMargins(view, out.rect);
+        preLayoutedViews.put(layoutManager.getPosition(view), out);
+    }
+
+    private LineItemPosRecord generateALineItem(FlowDragLayoutManager layoutManager) {
         if (rectSimplePool == null) {
             rectSimplePool = new Pools.SimplePool<>(layoutManager.getChildCount());
         }
         LineItemPosRecord out = rectSimplePool.acquire();
         if (out == null) {
-            DebugUtil.debugFormat("FlowDragLayoutManager out come from new");
+//            DebugUtil.debugFormat("FlowDragLayoutManager out come from new");
             out = new LineItemPosRecord();
         }else {
-            DebugUtil.debugFormat("FlowDragLayoutManager out come from pool");
+//            DebugUtil.debugFormat("FlowDragLayoutManager out come from pool");
         }
-        out.setFirstItemInLine(isFirstItemInLine);
-        layoutManager.getDecoratedBoundsWithMargins(view, out.rect);
-        preLayoutedViews.put(layoutManager.getPosition(view), out);
+        return out;
     }
 
     private static final class LineItemPosRecord {

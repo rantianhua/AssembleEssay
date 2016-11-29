@@ -26,4 +26,8 @@ public interface ILayoutHelper {
      */
     void recycleUnvisibleViews(RecyclerView.Recycler recycler, RecyclerView.State state, FlowDragLayoutManager flowDragLayoutManager);
 
+    /**
+     * 重新计算之前不可见布局的布局信息
+     */
+    void willCalculateUnVisibleViews();
 }

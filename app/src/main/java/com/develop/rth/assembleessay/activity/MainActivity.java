@@ -70,9 +70,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_align_left:
-                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.LEFT));
-//                adapter.getDatas().remove(0);
-//                adapter.notifyDataSetChanged();
+//                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.LEFT));
+                adapter.getDatas().remove(0);
+                adapter.notifyDataSetChanged();
                 break;
             case R.id.menu_align_center:
                 recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.CENTER));
