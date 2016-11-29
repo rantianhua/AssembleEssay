@@ -82,6 +82,7 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         if (getPosition(view) == 0) {
             DebugUtil.debugFormat("FlowDragLayoutManager scroll down viewTop:%s, pendingScrollDistance:%s", getViewTopWithMargin(view), layoutInfo.pendingScrollDistance);
             int interval = getPaddingTop() - (getViewTopWithMargin(view) + layoutInfo.pendingScrollDistance);
+            DebugUtil.debugFormat("FlowDragLayoutManager scroll down interval is %s", interval);
             if (interval < 0) {
                 layoutInfo.pendingScrollDistance = Math.abs(getViewTopWithMargin(view) - getPaddingTop());
                 DebugUtil.debugFormat("FlowDragLayoutManager scroll down correct dy is %s", layoutInfo.pendingScrollDistance);
@@ -211,7 +212,7 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
             final View firstView = findCloestVisibleView(true);
             if (getPosition(firstView) == 0) {
                 int topInterval = getPaddingTop() - getViewTopWithMargin(firstView);
-                DebugUtil.debugFormat("FlowDragLayoutManager scroll down topInterval:%s", topInterval);
+                DebugUtil.debugFormat("FlowDragLayoutManager scroll down topInterval:%s, dy:%s", topInterval, dy);
                 if (topInterval == 0) {
                     //第一个View正好完全显示
                     return 0;
