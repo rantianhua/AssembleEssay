@@ -224,10 +224,6 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
                     return 0;
                 }
             }
-//            if (layoutInfo.scrollOffset == 0) return 0;
-//            if (layoutInfo.scrollOffset + dy < 0) {
-//                dy = -layoutInfo.scrollOffset;
-//            }
         }
 
         //准备回收,
@@ -257,7 +253,6 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         startLayout(recycler,state);
         dy = dy > 0 ? layoutInfo.pendingScrollDistance : -layoutInfo.pendingScrollDistance;
         offsetChildrenVertical(-dy);
-        layoutInfo.scrollOffset += dy;
 //        DebugUtil.debugFormat("FlowDragLayoutManager dy:%s scrollOffset:%s",dy,layoutInfo.scrollOffset);
         return dy;
     }
@@ -298,8 +293,6 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
      * 记录和布局相关的全局信息
      */
     protected final static class LayoutInfo {
-        //滚动的偏移量
-        int scrollOffset;
         //开始布局的锚点
         int layoutAnchor;
         //某一时刻将要滚动的距离
