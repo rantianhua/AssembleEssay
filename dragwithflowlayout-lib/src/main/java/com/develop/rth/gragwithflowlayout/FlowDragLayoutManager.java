@@ -180,12 +180,6 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public void onLayoutCompleted(RecyclerView.State state) {
-        super.onLayoutCompleted(state);
-        DebugUtil.debugFormat("FlowDragLayoutManager onLayoutComplete");
-    }
-
-    @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
         //先修正dy
         if (dy == 0) return 0;
