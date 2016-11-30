@@ -1,5 +1,7 @@
 package com.develop.rth.assembleessay.contract;
 
+import com.develop.rth.assembleessay.adpter.AssembleEssayAdapter;
+
 import java.util.List;
 
 /**
@@ -9,13 +11,23 @@ public class MainContract {
 
     public interface IMainView {
 
-        void onEssayLoaded(List<String> datas);
+        void onDataLoaded(List<String> datas, int showType);
+
+        void addItemIn(int insertPos);
+
+        void removeItemIn(int removePos);
     }
 
     public interface IMainPresenter<V extends IMainView> {
 
-        void loadEssay();
-
         void release();
+
+        void showTags();
+
+        void showEssay();
+
+        void randomAdd(AssembleEssayAdapter adapter);
+
+        void randomDelete(AssembleEssayAdapter adapter);
     }
 }

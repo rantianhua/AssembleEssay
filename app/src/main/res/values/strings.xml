@@ -4,4 +4,8 @@
     <string name="align_right">向右对齐</string>
     <string name="align_left">向左对齐</string>
     <string name="align_two_side">两边对齐</string>
+    <string name="menu_show_tags">展示标签</string>
+    <string name="menu_show_eassy">展示文章</string>
+    <string name="random_add">随机增加</string>
+    <string name="random_delete">随机删除</string>
 </resources>

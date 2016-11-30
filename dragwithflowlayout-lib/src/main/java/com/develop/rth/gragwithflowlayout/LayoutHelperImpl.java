@@ -240,7 +240,6 @@ public class LayoutHelperImpl implements ILayoutHelper {
                 final View view = flowDragLayoutManager.getChildAt(i);
                 int afterScrollTop = flowDragLayoutManager.getViewTopWithMargin(view) + layoutInfo.pendingScrollDistance;
                 if (afterScrollTop >= flowDragLayoutManager.getHeight() - flowDragLayoutManager.getPaddingBottom()) {
-                    //回收
                     pendingRecycleView.add(view);
                 }else {
                     break;
@@ -252,7 +251,6 @@ public class LayoutHelperImpl implements ILayoutHelper {
                 final View view = flowDragLayoutManager.getChildAt(i);
                 int afterScrollBottom = flowDragLayoutManager.getViewBottomWithMargin(view) - layoutInfo.pendingScrollDistance;
                 if (afterScrollBottom <= flowDragLayoutManager.getPaddingTop()) {
-                    //回收
                     final int viewTop = flowDragLayoutManager.getViewTopWithMargin(view);
                     if (viewTop != top) {
                         saveLayoutInfo(view, flowDragLayoutManager, true);
@@ -263,7 +261,6 @@ public class LayoutHelperImpl implements ILayoutHelper {
 
                     pendingRecycleView.add(view);
                 }else {
-//                    DebugUtil.debugFormat("FlowDragLayoutManager finish recycle preLayoutedViews:%s",preLayoutedViews.size());
                     break;
                 }
             }
@@ -274,7 +271,6 @@ public class LayoutHelperImpl implements ILayoutHelper {
         }
 
         for (View view : pendingRecycleView) {
-//            DebugUtil.debugFormat("FlowDragLayoutManager recycle %s", flowDragLayoutManager.getPosition(view));
             flowDragLayoutManager.removeAndRecycleView(view, recycler);
         }
 

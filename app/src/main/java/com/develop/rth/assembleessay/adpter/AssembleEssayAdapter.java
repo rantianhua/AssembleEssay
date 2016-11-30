@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.develop.rth.assembleessay.R;
+import com.develop.rth.assembleessay.presenter.MainPresenter;
 import com.develop.rth.gragwithflowlayout.DebugUtil;
 
 import java.util.ArrayList;
@@ -22,27 +23,27 @@ public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdap
 
     private List<String> datas = new ArrayList<>();
     private Context context;
+    private int contentType = -1;
 
     public AssembleEssayAdapter(Context context) {
         this.context = context;
     }
 
-    public AssembleEssayAdapter(Context context, List<String> datas) {
-        this(context);
-        setDatas(datas);
-    }
-
-    public void setDatas(List<String> datas) {
+    public void setDatas(List<String> datas, int type) {
+        this.contentType = type;
         this.datas.clear();
         this.datas.addAll(datas);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        DebugUtil.debugFormat("%s onCreateViewHolder",TAG);
-        View view = LayoutInflater.from(context).inflate(R.layout.item_assemble_essay,parent,false);
-        ViewHolder vh = new ViewHolder(view);
-        return vh;
+        View view;
+        if (viewType == MainPresenter.ShowingType.ESSAY) {
+            view = LayoutInflater.from(context).inflate(R.layout.item_assemble_essay,parent,false);
+        }else {
+            view = LayoutInflater.from(context).inflate(R.layout.item_assemble_tags,parent,false);
+        }
+        return new ViewHolder(view);
     }
 
     @Override
@@ -80,6 +81,11 @@ public class AssembleEssayAdapter extends RecyclerView.Adapter<AssembleEssayAdap
         TextView getTvWord() {
             return tvWord;
         }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return contentType;
     }
 
 }

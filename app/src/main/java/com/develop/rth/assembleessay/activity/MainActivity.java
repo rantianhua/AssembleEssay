@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.develop.rth.assembleessay.R;
 import com.develop.rth.assembleessay.adpter.AssembleEssayAdapter;
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
     private MainContract.IMainPresenter presenter;
     private RecyclerView recyclerView;
     private AssembleEssayAdapter adapter;
+    private FlowDragLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
 
     private void afterView() {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new FlowDragLayoutManager());
+        layoutManager = new FlowDragLayoutManager();
+        recyclerView.setLayoutManager(layoutManager);
         adapter = new AssembleEssayAdapter(this);
         ItemTouchHelper.Callback callback = new DragItemTouchCallBack(adapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
 
     private void init() {
         presenter = new MainPresenter(this);
-        presenter.loadEssay();
+        presenter.showTags();
     }
 
     @Override
@@ -53,11 +56,23 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
     }
 
     @Override
-    public void onEssayLoaded(List<String> datas) {
+    public void onDataLoaded(List<String> datas, int showType) {
         if (datas == null) return;
         if (datas.size() == 0) return;
-        adapter.setDatas(datas);
+        adapter.setDatas(datas, showType);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void addItemIn(int insertPos) {
+        adapter.notifyItemInserted(insertPos);
+        Toast.makeText(this, "在"+insertPos+"新增了一个元素",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void removeItemIn(int removePos) {
+        adapter.notifyItemRemoved(removePos);
+        Toast.makeText(this, "删除了第"+removePos+"个元素",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -70,24 +85,28 @@ public class MainActivity extends AppCompatActivity implements MainContract.IMai
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_align_left:
-                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.LEFT));
-//                adapter.getDatas().remove(0);
-//                adapter.notifyDataSetChanged();
+                layoutManager.setAlignMode(FlowDragLayoutConstant.LEFT);
                 break;
             case R.id.menu_align_center:
-                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.CENTER));
-//                adapter.getDatas().remove(0);
-//                adapter.notifyItemRemoved(0);
+                layoutManager.setAlignMode(FlowDragLayoutConstant.CENTER);
                 break;
             case R.id.menu_align_right:
-                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.RIGHT));
-//                adapter.getDatas().add(0, "New add");
-//                adapter.notifyItemInserted(0);
+                layoutManager.setAlignMode(FlowDragLayoutConstant.RIGHT);
                 break;
             case R.id.menu_align_two_side:
-                recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.TWO_SIDE));
-//                adapter.getDatas().add("Tail");
-//                adapter.notifyDataSetChanged();
+                layoutManager.setAlignMode(FlowDragLayoutConstant.TWO_SIDE);
+                break;
+            case R.id.menu_show_tags:
+                presenter.showTags();
+                break;
+            case R.id.menu_show_eassy:
+                presenter.showEssay();
+                break;
+            case R.id.menu_random_add:
+                presenter.randomAdd(adapter);
+                break;
+            case R.id.menu_random_remove:
+                presenter.randomDelete(adapter);
                 break;
         }
         return true;

@@ -168,6 +168,9 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
             final View view = findCloestVisibleView(true);
             layoutInfo.firstVisibleViewTop = getViewTopWithMargin(view);
             layoutInfo.startLayoutPos = getPosition(view);
+            if (layoutInfo.startLayoutPos >= getItemCount()) {
+                layoutInfo.startLayoutPos = 0;
+            }
         }else {
             layoutInfo.firstVisibleViewTop = getPaddingTop();
             layoutInfo.startLayoutPos = 0;
@@ -223,10 +226,10 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
         //准备回收,
         //按照安全滑动距离（比如向上滑动时，正好让最后一个不完全显示的View显示的完全的距离）去处理回收
         if (dy > 0) {
-            layoutInfo.pendingScrollDistance = getViewBottomWithMargin(findCloestVisibleView(false)) - (getHeight() - getPaddingBottom());
+            layoutInfo.pendingScrollDistance = Math.min(getViewBottomWithMargin(findCloestVisibleView(false)) - (getHeight() - getPaddingBottom()), dy);
             layoutInfo.layoutFrom = LayoutFrom.UP_TO_DOWN;
         }else {
-            layoutInfo.pendingScrollDistance = getPaddingTop() - getViewTopWithMargin(findCloestVisibleView(true));
+            layoutInfo.pendingScrollDistance = Math.min(Math.abs(getPaddingTop() - getViewTopWithMargin(findCloestVisibleView(true))), -dy);
             layoutInfo.layoutFrom = LayoutFrom.DOWN_TO_UP;
         }
         layoutHelper.recycleUnvisibleViews(recycler, state, this);
@@ -281,6 +284,12 @@ public class FlowDragLayoutManager extends RecyclerView.LayoutManager {
 
     protected LayoutInfo getLayoutInfo() {
         return layoutInfo;
+    }
+
+    public void setAlignMode(int alignMode) {
+        if (alignMode == layoutInfo.alignMode) return;
+        layoutInfo.alignMode = alignMode;
+        requestLayout();
     }
 
     /**

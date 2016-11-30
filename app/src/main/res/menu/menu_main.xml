@@ -2,6 +2,13 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+
+    <item android:title="@string/menu_show_tags"
+        android:id="@+id/menu_show_tags"
+        app:showAsAction="never" />
+    <item android:title="@string/menu_show_eassy"
+        android:id="@+id/menu_show_eassy"
+        app:showAsAction="never" />
     <item android:title="@string/align_two_side"
         android:id="@+id/menu_align_two_side"
         app:showAsAction="never" />
@@ -13,5 +20,11 @@
         app:showAsAction="never" />
     <item android:title="@string/align_center"
         android:id="@+id/menu_align_center"
+        app:showAsAction="never" />
+    <item android:title="@string/random_add"
+        android:id="@+id/menu_random_add"
+        app:showAsAction="never" />
+    <item android:title="@string/random_delete"
+        android:id="@+id/menu_random_remove"
         app:showAsAction="never" />
 </menu>
