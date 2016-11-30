@@ -19,16 +19,23 @@
 recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 recyclerView.setLayoutManager(new FlowDragLayoutManager());
 ```
-# 设置对齐方式
+# 设置/更改对齐方式
 ```
+//初始化是设置
 //向左对齐
-recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.LEFT));
+FlowDragLayoutManager layoutManager = new FlowDragLayoutManager(FlowDragLayoutConstant.LEFT);
 //居中对齐
-recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.CENTER));
+FlowDragLayoutManager layoutManager = new FlowDragLayoutManager(FlowDragLayoutConstant.CENTER);
 //向右对齐
-recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.RIGHT));
+FlowDragLayoutManager layoutManager = new FlowDragLayoutManager(FlowDragLayoutConstant.RIGHT);
 //居中对齐
-recyclerView.setLayoutManager(new FlowDragLayoutManager(FlowDragLayoutConstant.TWO_SIDE));
+FlowDragLayoutManager layoutManager = new FlowDragLayoutManager(FlowDragLayoutConstant.TWO_SIDE);
+
+//动态更改
+layoutManager.setAlignMode(FlowDragLayoutConstant.LEFT);
+layoutManager.setAlignMode(FlowDragLayoutConstant.CENTER);
+layoutManager.setAlignMode(FlowDragLayoutConstant.RIGHT);
+layoutManager.setAlignMode(FlowDragLayoutConstant.TWO_SIDE);
 ```
 
 # 优点
