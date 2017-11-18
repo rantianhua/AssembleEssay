@@ -1,3 +1,5 @@
+[![Release](https://jitpack.io/v/rantianhua/AssembleEssay.svg)](https://jitpack.io/#rantianhua/AssembleEssay)
+
 # AssembleEssay
 自定义 LayoutManager 实现一个流动布局，可以用作文章展示，也可以用作标签展示，并且可以很方便地为其添加布局动画，示例代码里添加了拖拽插入的动画，如效果图。
 
@@ -14,7 +16,20 @@
 ![image](https://raw.githubusercontent.com/rantianhua/AssembleEssay/master/app/images/Flow_Drag_Essay_View.gif)
 
 # 使用方式
-一行代码即可搞定，将 dragwithflowlayout-lib 作为 moudle 引用自己的工程，使用时直接给 RecyclerView 设置 LayoutManager 即可：
+1. 先添加 jitpack 
+```
+allprojects {
+  repositories {
+	 ...
+	 maven { url 'https://jitpack.io' }
+  }
+}
+```
+2. 在 module 对应得 build.gradle 文件中添加
+```
+implementation 'com.github.rantianhua:AssembleEssay:v1.0.0'
+```
+3. 示例代码
 ```
 recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 recyclerView.setLayoutManager(new FlowDragLayoutManager());
