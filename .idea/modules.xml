@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AssembleEssay.iml" filepath="$PROJECT_DIR$/AssembleEssay.iml" />
-      <module fileurl="file://$PROJECT_DIR$/AssembleEssay-master.iml" filepath="$PROJECT_DIR$/AssembleEssay-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/dragwithflowlayout-lib/dragwithflowlayout-lib.iml" filepath="$PROJECT_DIR$/dragwithflowlayout-lib/dragwithflowlayout-lib.iml" />
     </modules>
